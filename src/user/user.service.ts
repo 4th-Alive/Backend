@@ -5,10 +5,14 @@ import { Repository } from 'typeorm';
 import { signUpDTO, signInDTO, guestSigninDTO, guestSignupDTO } from './dto/auth.dto';
 import * as  bcrypt from 'bcrypt';
 import { uid } from 'uid';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
-    constructor( @InjectRepository(User) private userRepository: Repository<User> ){}
+    constructor( 
+        @InjectRepository(User) private userRepository: Repository<User>,
+        private readonly jwtService: JwtService,
+    ){}
 
     async create(user: signUpDTO){
         const existEmail = await this.findEmail(user.email)
@@ -19,17 +23,6 @@ export class UserService {
         
         await this.userRepository.save(user);
         return "success signup"
-    }
-
-    async validateUser(user: signInDTO){
-        const userEmail = await this.findEmail(user.email);
-        if(!userEmail) { throw new UnauthorizedException('이메일 또는 비밀번호가 일치하지 않습니다.'); } 
-    
-        const hashPassword = userEmail.password;
-        const isCorrectPassword = bcrypt.compareSync(user.password, hashPassword);
-        if(!isCorrectPassword) {throw new UnauthorizedException('이메일 또는 비밀번호가 일치하지 않습니다.')}
-        
-        return "success signin"
     }
 
     async findEmail(email : string){
@@ -47,8 +40,6 @@ export class UserService {
             },
         })
     }
-
-     
 }
 
 @Injectable()
@@ -63,17 +54,6 @@ export class GuestService{
         
         await this.guestRepository.save(guest);
         return "success signup(Guest)"
-    }
-
-    async validateUser(guest: guestSigninDTO){
-        const uid = await this.findUid(guest.uid);
-        if(!uid) { throw new UnauthorizedException('uid 또는 비밀번호가 일치하지 않습니다.'); } 
-    
-        const hashPassword = uid.password;
-        const isCorrectPassword = bcrypt.compareSync(guest.password, hashPassword);
-        if(!isCorrectPassword) {throw new UnauthorizedException('uid 또는 비밀번호가 일치하지 않습니다.')}
-        
-        return "success signin(Guest)"
     }
 
     async findUid(uid : string){
