@@ -4,11 +4,22 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UserService } from '../user.service';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
-    constructor(private readonly userService: UserService) {
+export class JwtAccessStrategy extends PassportStrategy(
+    Strategy, 
+    'jwt-access-token',
+) {
+    constructor(
+        private readonly userService: UserService
+    ) {
         super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            secretOrKey: process.env.JWT_SECRET,
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), 
+            // 쿠키 쿠키에 저장하면 이거
+            // jwtFromRequest: ExtractJwt.fromExtractors([
+            //     (request) => {
+            //       return request?.cookies?.Authentication;
+            //     },
+            //   ]),
+            secretOrKey: process.env.JWT_ACCESS_SECRET,
             ignoreExpiration: false,
         });
     }

@@ -3,10 +3,11 @@ import { GuestController, UserController } from './user.controller';
 import { UserService, GuestService } from './user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User, Guest } from './entities/user.entity';
-import { JwtStrategy } from './auth/jwt.strategy';
+import { JwtAccessStrategy } from './auth/jwt.access.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth/auth.service';
+import { JwtRefreshStrategy } from './auth/jwt.refresh.strategy';
 
 @Module({
     imports: [
@@ -15,16 +16,16 @@ import { AuthService } from './auth/auth.service';
         PassportModule.register({defaultStrategy:'jwt'}),
         JwtModule.registerAsync({
             useFactory: () => ({
-                secret: process.env.JWT_SECRET,
+                secret: process.env.JWT_ACCESS_SECRET,
                 signOptions: {
-                    expiresIn: '1h',
+                    expiresIn: process.env.JWT_ACCESS_EXPIRATION_TIME,
                 }
             })
         }),
     ],
     exports: [TypeOrmModule],
     controllers : [UserController, GuestController],
-    providers: [UserService, GuestService, JwtStrategy, AuthService]
+    providers: [UserService, GuestService, JwtAccessStrategy, AuthService , JwtRefreshStrategy]
 })
 
 export class UserModule {}

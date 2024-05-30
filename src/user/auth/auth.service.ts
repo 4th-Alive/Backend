@@ -24,7 +24,21 @@ export class AuthService {
         }
 
         const payload = { username: userEmail.email, sub: userEmail.id };
-        return { token: this.jwtService.sign(payload) };
+
+        return this.getAccessJwtToken(payload);
+    }
+
+    async getAccessJwtToken(payload : any){
+        return { token : this.jwtService.sign(payload) }
+    }
+
+    async getRefreshJwtToken(id: number){
+        const payload = { id };
+        return { token : this.jwtService.sign(payload,{
+            secret : process.env.JWT_REFRESH_SECRET,
+            expiresIn : process.env.JWT_REFRESH_EXPIRATION_TIME
+            })
+        }
     }
 
     async validateGuest(guest: guestSigninDTO) {

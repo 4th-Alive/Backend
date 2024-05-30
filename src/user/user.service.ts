@@ -40,6 +40,27 @@ export class UserService {
             },
         })
     }
+
+    async findById(id : number){
+        return await this.userRepository.findOne({
+            where : {
+                id,
+            }
+        })
+    }
+
+    async setCurrentRefreshToken(refreshToken : string, id : number){
+        const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+        await this.userRepository.update(id, {currentHashedRefreshToken});
+    }
+
+    async getRefreshTokenMatches(refreshToken : string, id : number){
+        const user = await this.findById(id);
+        const isCorrectRefreshToken = await bcrypt.compare(refreshToken, user.currentHashedRefreshToken);
+
+        if(isCorrectRefreshToken) return user;
+
+    }
 }
 
 @Injectable()

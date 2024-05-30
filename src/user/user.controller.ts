@@ -2,8 +2,10 @@ import { Body, Controller, Post, Get, UseGuards, Res,  Req } from '@nestjs/commo
 import { GuestService, UserService } from './user.service';
 import { signUpDTO, signInDTO, guestSigninDTO, guestSignupDTO } from './dto/auth.dto';
 import { Response, Request } from 'express';
-import { JwtAuthGuard } from './auth/jwt.guard';
+import { JwtAuthGuard } from './auth/jwt.access.guard';
+import { JwtRefreshAuthGuard } from './auth/jwt.refresh.guard';
 import { AuthService } from './auth/auth.service';
+
 
 @Controller('user')
 export class UserController {
@@ -19,8 +21,16 @@ export class UserController {
     
     @Post('/signin')
     async signIn(@Body() user: signInDTO, @Res() res: Response){
-        const jwt  = await this.authService.validateUser(user);
+        const jwt = await this.authService.validateUser(user);
+        const userId = await this.userService.findEmail(user.email);
+
+        const refreshToken = await this.authService.getRefreshJwtToken(userId.id)
         // res.setHeader('Authorization', 'Bearer ' + jwt.token);   
+        res.cookie('Authentication', jwt.token);
+        res.cookie('Refresh', refreshToken.token);
+        
+        await this.userService.setCurrentRefreshToken(refreshToken.token, userId.id);
+        // res.cookie('Refresh');
         // 나중에 클라이언트에서 cookies에 저장하고 코드 확인하기
         return res.json(jwt);
     }
@@ -32,6 +42,11 @@ export class UserController {
         return user;
     }
 
+    @Get('/refresh')
+    @UseGuards(JwtRefreshAuthGuard)
+    isAuthenticatedRefresh(@Req() res:Request){
+        return res.user;
+    }
 }
 
 @Controller('guest')
