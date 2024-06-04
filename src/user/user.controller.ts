@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Body, Controller, Post, Get, UseGuards, Res,  Req } from '@nestjs/common';
 import { GuestService, UserService } from './user.service';
 import { signUpDTO, signInDTO, guestSigninDTO, guestSignupDTO } from './dto/auth.dto';
@@ -5,7 +6,6 @@ import { Response, Request } from 'express';
 import { JwtAuthGuard } from './auth/jwt.access.guard';
 import { JwtRefreshAuthGuard } from './auth/jwt.refresh.guard';
 import { AuthService } from './auth/auth.service';
-
 
 @Controller('user')
 export class UserController {
@@ -25,7 +25,7 @@ export class UserController {
         const userId = await this.userService.findEmail(user.email);
 
         const refreshToken = await this.authService.getRefreshJwtToken(userId.id)
-        // res.setHeader('Authorization', 'Bearer ' + jwt.token);   
+        // res.setHeader('Authorization', 'Bearer ' + jwt.token);  
         res.cookie('Authentication', jwt.token);
         res.cookie('Refresh', refreshToken.token);
         
@@ -44,8 +44,11 @@ export class UserController {
 
     @Get('/refresh')
     @UseGuards(JwtRefreshAuthGuard)
-    isAuthenticatedRefresh(@Req() res:Request){
-        return res.user;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    isAuthenticatedRefresh(@Req() req:Request){
+        const token = req.user;
+        req.res.cookie('Authentication', token)
+        return { token : token }
     }
 }
 
@@ -66,4 +69,5 @@ export class GuestController{
         return await this.authService.validateGuest(guest);
     }
 }
+
 
