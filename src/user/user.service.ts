@@ -61,6 +61,14 @@ export class UserService {
         if(isCorrectRefreshToken) return user;
 
     }
+
+    async removeRefreshToken(email:string){
+        const user = await this.userRepository.findOne({ where : { email }});
+        if(user){
+            user.currentHashedRefreshToken = null;
+            await this.userRepository.save(user);
+        }
+    }
 }
 
 @Injectable()

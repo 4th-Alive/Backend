@@ -26,13 +26,37 @@ export class UserController {
 
         const refreshToken = await this.authService.getRefreshJwtToken(userId.id)
         // res.setHeader('Authorization', 'Bearer ' + jwt.token);  
-        res.cookie('Authentication', jwt.token);
-        res.cookie('Refresh', refreshToken.token);
+        res.cookie('Authentication', jwt.token, {
+            httpOnly: true,
+            secure: true,
+            maxAge: 60 * 60 * 1000, //1h
+        });
+        res.cookie('Refresh', refreshToken.token,{
+            httpOnly: true,
+            secure: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
+        });
         
         await this.userService.setCurrentRefreshToken(refreshToken.token, userId.id);
         // res.cookie('Refresh');
         // 나중에 클라이언트에서 cookies에 저장하고 코드 확인하기
         return res.json(jwt);
+    }
+
+    @Get('/logout')
+    @UseGuards(JwtAuthGuard)
+    async logout(@Req() req: Request, @Res() res: Response){
+        const user: any = req.user;
+        res.cookie('Authentication', '',{
+            maxAge: 0
+        })
+        res.cookie('Refresh', '',{
+            maxAge: 0
+        })
+
+        await this.userService.removeRefreshToken(user.email);
+
+        return res.json({message: "success"});
     }
 
     @Get('/auth')
@@ -44,7 +68,6 @@ export class UserController {
 
     @Get('/refresh')
     @UseGuards(JwtRefreshAuthGuard)
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     isAuthenticatedRefresh(@Req() req:Request){
         const token = req.user;
         req.res.cookie('Authentication', token)

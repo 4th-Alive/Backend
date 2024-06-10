@@ -23,7 +23,7 @@ export class AuthService {
             throw new UnauthorizedException('이메일 또는 비밀번호가 일치하지 않습니다.');
         }
 
-        const payload = { username: userEmail.email, sub: userEmail.id };
+        const payload = { email: userEmail.email, sub: userEmail.id };
 
         return this.getAccessJwtToken(payload);
     }

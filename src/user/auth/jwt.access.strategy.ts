@@ -12,13 +12,12 @@ export class JwtAccessStrategy extends PassportStrategy(
         private readonly userService: UserService
     ) {
         super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), 
-            // 쿠키 쿠키에 저장하면 이거
-            // jwtFromRequest: ExtractJwt.fromExtractors([
-            //     (request) => {
-            //       return request?.cookies?.Authentication;
-            //     },
-            //   ]),
+            // jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), 
+            jwtFromRequest: ExtractJwt.fromExtractors([
+                (request) => {
+                  return request?.cookies?.Authentication;
+                },
+              ]),
             secretOrKey: process.env.JWT_ACCESS_SECRET,
             ignoreExpiration: false,
         });
@@ -30,7 +29,7 @@ export class JwtAccessStrategy extends PassportStrategy(
         if (!user) {
             throw new UnauthorizedException({ message: '회원 존재하지 않음.' });
         }
-        return { useremail : user.email, userId : user.id};
+        return { email : user.email, userId : user.id};
     }
     
 }
