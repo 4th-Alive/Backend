@@ -3,10 +3,13 @@ import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Guest, User } from './user/entities/user.entity';
 import { ConfigModule } from '@nestjs/config';
+import { FamilyModule } from './family/family.module';
+import { Family } from './family/entities/family.entity';
 
 @Module({
   imports: [
     UserModule,
+    FamilyModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -18,7 +21,7 @@ import { ConfigModule } from '@nestjs/config';
         username: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_DATABASE,
-        entities: [User, Guest],
+        entities: [User, Guest, Family],
         synchronize: true,
       })
     }),

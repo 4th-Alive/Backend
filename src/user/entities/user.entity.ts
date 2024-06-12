@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Family } from "src/family/entities/family.entity";
+import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -14,8 +15,13 @@ export class User {
     @Column()
     password: string;
 
+    @ManyToOne(() => Family, family => family.familyCode)
+    @JoinColumn({ name: 'familyCode'})
+    familyCode: Family;
+
     @Column({ nullable: true })
     currentHashedRefreshToken?: string;
+
 }
 
 @Entity()

@@ -25,7 +25,7 @@ export class JwtAccessStrategy extends PassportStrategy(
 
     async validate(payload: any) {
         console.log('JWT Payload:', payload); // 디버깅을 위한 로그
-        const user = await this.userService.findEmail(payload.username);
+        const user = await this.userService.findEmail(payload.email);
         if (!user) {
             throw new UnauthorizedException({ message: '회원 존재하지 않음.' });
         }
