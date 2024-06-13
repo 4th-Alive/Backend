@@ -23,7 +23,6 @@ export class UserController {
     async signIn(@Body() user: signInDTO, @Res() res: Response){
         const jwt = await this.authService.validateUser(user);
         const userId = await this.userService.findEmail(user.email);
-        console.log(userId);
         const refreshToken = await this.authService.getRefreshJwtToken(userId.id)
         // res.setHeader('Authorization', 'Bearer ' + jwt.token);  
         res.cookie('Authentication', jwt.token, {

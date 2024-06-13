@@ -51,7 +51,7 @@ export class FamilyService {
                 },
                 relations:['familyCode']
             })
-            
+
             if(user.familyCode != null) return "you already have a family"
         
             user.familyCode = family;

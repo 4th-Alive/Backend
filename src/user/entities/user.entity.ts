@@ -15,7 +15,7 @@ export class User {
     @Column()
     password: string;
 
-    @ManyToOne(() => Family, family => family.familyCode)
+    @ManyToOne(() => Family, { eager: true })
     @JoinColumn({ name: 'familyCode'})
     familyCode: Family;
 
