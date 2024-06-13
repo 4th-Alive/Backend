@@ -2,33 +2,53 @@ import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/co
 import { InjectRepository } from '@nestjs/typeorm';
 import { User, Guest } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import { signUpDTO, signInDTO, guestSigninDTO, guestSignupDTO } from './dto/auth.dto';
+import { signUpDTO, guestSignupDTO } from './dto/auth.dto';
 import * as  bcrypt from 'bcrypt';
 import { uid } from 'uid';
-import { JwtService } from '@nestjs/jwt';
+import { v1 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class UserService {
     constructor( 
         @InjectRepository(User) private userRepository: Repository<User>,
-        private readonly jwtService: JwtService,
     ){}
 
-    async create(user: signUpDTO){
-        const existEmail = await this.findEmail(user.email)
-        if(existEmail){ throw new ConflictException("이미 사용중인 이메일"); }
+    async create(user: signUpDTO){ // 회원가입 수정 끝
+        const existId = await this.findId(user.id)
+        if(existId){ throw new ConflictException({
+                success : false,
+                desc : "existId"
+            }); 
+        }
         
+        const existNickname = await this.findNickname(user.nickname)
+        if(existNickname) { throw new ConflictException({
+                success : false,
+                desc : "existNickname"
+            }); 
+        }
+
         const hash = await bcrypt.hash(user.password, 10);
         user.password = hash;
         
+        const uid = uuidv4().replace(/-/g, '').substring(0, 16)
+        const profile_uid = uuidv4().replace(/-/g, '').substring(0, 16)
+        const signup_date = Date();
+
+        user.uid = uid;
+        user.profile_uid = profile_uid;
+        user.signup_date = signup_date;
+        user.exp = 0;
+
         await this.userRepository.save(user);
-        return "success signup"
+
+        return {success : true}
     }
 
-    async findEmail(email : string){
+    async findId(id : string){
         return await this.userRepository.findOne({
             where: {
-                email,
+                id,
             },
         });
     }
@@ -41,29 +61,44 @@ export class UserService {
         })
     }
 
-    async findById(id : number){
+    async findNickname(nickname : string){
         return await this.userRepository.findOne({
-            where : {
-                id,
+            where : { 
+                nickname 
             }
         })
     }
 
-    async setCurrentRefreshToken(refreshToken : string, id : number){
-        const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-        await this.userRepository.update(id, {currentHashedRefreshToken});
+    async findByPk(pk : number){
+        return await this.userRepository.findOne({
+            where : {
+                pk,
+            }
+        })
     }
 
-    async getRefreshTokenMatches(refreshToken : string, id : number){
-        const user = await this.findById(id);
+    async findUserByUid(uid : string){
+        return await this.userRepository.findOne({
+            where : {
+                uid,
+            }
+        })
+    }
+
+    async setCurrentRefreshToken(refreshToken : string, pk : number){
+        const currentHashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+        await this.userRepository.update(pk, {currentHashedRefreshToken});
+    }
+
+    async getRefreshTokenMatches(refreshToken : string, pk : number){
+        const user = await this.findByPk(pk);
         const isCorrectRefreshToken = await bcrypt.compare(refreshToken, user.currentHashedRefreshToken);
 
         if(isCorrectRefreshToken) return user;
-
     }
 
-    async removeRefreshToken(email:string){
-        const user = await this.userRepository.findOne({ where : { email }});
+    async removeRefreshToken(id:string){
+        const user = await this.userRepository.findOne({ where : { id }});
         if(user){
             user.currentHashedRefreshToken = null;
             await this.userRepository.save(user);
@@ -101,3 +136,4 @@ export class GuestService{
         })
     }
 }
+

@@ -13,30 +13,32 @@ export class AuthService {
     ) {}
 
     async validateUser(user: signInDTO) {
-        const userEmail = await this.userService.findEmail(user.email);
-        if (!userEmail) {
-            throw new UnauthorizedException('이메일 또는 비밀번호가 일치하지 않습니다.');
+        const userId = await this.userService.findId(user.id);
+        if (!userId) {
+            throw new UnauthorizedException('아이디 또는 비밀번호가 일치하지 않습니다.');
         }
 
-        const isCorrectPassword = await bcrypt.compare(user.password, userEmail.password);
+        const isCorrectPassword = await bcrypt.compare(user.password, userId.password);
         if (!isCorrectPassword) {
-            throw new UnauthorizedException('이메일 또는 비밀번호가 일치하지 않습니다.');
+            throw new UnauthorizedException('아이디 또는 비밀번호가 일치하지 않습니다.');
         }
 
-        const payload = { email: userEmail.email, sub: userEmail.id };
+        // 토큰에 uid와 family uid 사용, sub 추후 제거
+        const payload = { uid: userId.uid, sub: userId.pk };
 
         return this.getAccessJwtToken(payload);
     }
 
     async getAccessJwtToken(payload : any){
+        console.log(payload);
         return { token : this.jwtService.sign(payload) }
     }
 
-    async getRefreshJwtToken(id: number){
-        const payload = { id };
+    async getRefreshJwtToken(pk: number){
+        const payload = { pk };
         return { token : this.jwtService.sign(payload,{
-            secret : process.env.JWT_REFRESH_SECRET,
-            expiresIn : process.env.JWT_REFRESH_EXPIRATION_TIME
+                secret : process.env.JWT_REFRESH_SECRET,
+                expiresIn : process.env.JWT_REFRESH_EXPIRATION_TIME
             })
         }
     }

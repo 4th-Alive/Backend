@@ -1,9 +1,9 @@
-import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+// import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity()
-export class Family {
+// @Entity()
+// export class Family {
 
-    @PrimaryColumn()
-    familyCode : string;
+//     @PrimaryColumn()
+//     familyCode : string;
 
-}
+// }

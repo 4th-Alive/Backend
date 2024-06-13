@@ -2,20 +2,40 @@ import { IsEmail, IsOptional, IsString, Length } from "class-validator";
 
 export class signUpDTO {
 
-    @IsEmail()
-    email : string;
+    @IsOptional()
+    @IsString()
+    uid : string;
 
     @IsString()
-    username: string;
-
+    id : string;
+    
     @IsString()
     @Length(4,20)
     password: string;
+
+    @IsString()
+    nickname: string;
+
+    @IsString()
+    realname : string;
+
+    @IsOptional()
+    @IsString()
+    signup_date : string;
+    
+    @IsOptional()
+    @IsString()
+    profile_uid : string;
+
+    @IsOptional()
+    @IsString()
+    exp : number;
+
 }
 
 export class signInDTO{
-    @IsEmail()
-    email : string;
+    @IsString()
+    id : string;
 
     @IsString()
     @Length(4,20)

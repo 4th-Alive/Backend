@@ -22,8 +22,8 @@ export class UserController {
     @Post('/signin')
     async signIn(@Body() user: signInDTO, @Res() res: Response){
         const jwt = await this.authService.validateUser(user);
-        const userId = await this.userService.findEmail(user.email);
-        const refreshToken = await this.authService.getRefreshJwtToken(userId.id)
+        const userId = await this.userService.findId(user.id);
+        const refreshToken = await this.authService.getRefreshJwtToken(userId.pk)
         // res.setHeader('Authorization', 'Bearer ' + jwt.token);  
         res.cookie('Authentication', jwt.token, {
             httpOnly: true,
@@ -36,9 +36,7 @@ export class UserController {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
         });
         
-        await this.userService.setCurrentRefreshToken(refreshToken.token, userId.id);
-        // res.cookie('Refresh');
-        // 나중에 클라이언트에서 cookies에 저장하고 코드 확인하기
+        await this.userService.setCurrentRefreshToken(refreshToken.token, userId.pk);
         return res.json(jwt);
     }
 
@@ -70,7 +68,7 @@ export class UserController {
     isAuthenticatedRefresh(@Req() req:Request){
         const token = req.user;
         req.res.cookie('Authentication', token)
-        return { token : token }
+        return { token }
     }
 }
 

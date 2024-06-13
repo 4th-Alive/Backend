@@ -3,15 +3,15 @@ import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Guest, User } from './user/entities/user.entity';
 import { ConfigModule } from '@nestjs/config';
-import { FamilyModule } from './family/family.module';
-import { Family } from './family/entities/family.entity';
-import { DiaryModule } from './diary/diary.module';
-import { Diary } from './diary/entities/diary.entity';
+// import { FamilyModule } from './family/family.module';
+// import { Family } from './family/entities/family.entity';
+// import { DiaryModule } from './diary/diary.module';
+// import { Diary } from './diary/entities/diary.entity';
 
 @Module({
   imports: [
     UserModule,
-    FamilyModule,
+    // FamilyModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -23,11 +23,11 @@ import { Diary } from './diary/entities/diary.entity';
         username: process.env.DB_USERNAME,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_DATABASE,
-        entities: [User, Guest, Family, Diary],
+        entities: [User, Guest],
         synchronize: true,
       })
     }),
-    DiaryModule,
+    // DiaryModule,
   ],
   controllers: [],
   providers: [],

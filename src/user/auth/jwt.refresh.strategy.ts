@@ -28,10 +28,11 @@ export class JwtRefreshStrategy extends PassportStrategy(
 
   async validate(req: { cookies: { Refresh: any; }; }, payload:any) {
     const refreshToken = req.cookies?.Refresh;
-    const decodingUserData = await this.userService.getRefreshTokenMatches(refreshToken, payload.id);
-    const newPayload = { email: decodingUserData.email, sub : decodingUserData.id} 
+    const decodingUserData = await this.userService.getRefreshTokenMatches(refreshToken, payload.pk);
+    //refresh 토큰도 추후 family uid로 변경
+    const newPayload = { uid: decodingUserData.uid, sub : decodingUserData.pk} 
     const newAccessToken = await this.authService.getAccessJwtToken(newPayload)
-    // console.log(newAccessToken);
+    
     return newAccessToken.token;
   }
 }
