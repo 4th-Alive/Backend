@@ -1,25 +1,33 @@
-// import { IsBoolean, IsDate, IsEmail, IsNumber, IsOptional, IsString } from "class-validator";
-// import { Type } from 'class-transformer';
-// import { User } from "src/user/entities/user.entity";
+import { IsBoolean, IsNumber, IsOptional, IsString } from "class-validator";
+import { Family } from "src/family/entities/family.entity";
+import { User } from "src/user/entities/user.entity";
 
-// export class diaryDTO{
-//     @IsString()
-//     title : string;
+export class diaryDTO{
 
-//     @IsString()
-//     contents : string;
+    @IsOptional()
+    @IsString()
+    uid : string;
 
-//     @IsString()
-//     sentiment : string;
+    @IsOptional()
+    family_uid : Family;
 
-//     @IsBoolean()
-//     isPublic : boolean; 
+    @IsOptional()
+    user_uid : User;
 
-//     @IsEmail()
-//     @IsOptional()
-//     email : User;
+    @IsString()
+    title : string;
 
-//     @IsDate()
-//     @Type(() => Date)
-//     uploadDate: Date; 
-// }
+    @IsString()
+    contents : string;
+
+    @IsOptional()
+    @IsString()
+    create_date : string;
+
+    @IsNumber()
+    sentiment : number;
+
+    @IsNumber()
+    private : number; 
+
+}

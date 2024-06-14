@@ -97,8 +97,9 @@ export class UserService {
         if(isCorrectRefreshToken) return user;
     }
 
-    async removeRefreshToken(id:string){
-        const user = await this.userRepository.findOne({ where : { id }});
+    async removeRefreshToken(uid:string){
+        const user = await this.userRepository.findOne({ where : { uid }});
+        console.log(user);
         if(user){
             user.currentHashedRefreshToken = null;
             await this.userRepository.save(user);

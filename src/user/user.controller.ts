@@ -24,7 +24,6 @@ export class UserController {
         const jwt = await this.authService.validateUser(user);
         const userId = await this.userService.findId(user.id);
         const refreshToken = await this.authService.getRefreshJwtToken(userId.pk)
-        // res.setHeader('Authorization', 'Bearer ' + jwt.token);  
         res.cookie('Authentication', jwt.token, {
             httpOnly: true,
             secure: true,
@@ -49,9 +48,9 @@ export class UserController {
         })
         res.cookie('Refresh', '',{
             maxAge: 0
-        })
-
-        await this.userService.removeRefreshToken(user.email);
+        })  
+        console.log(user);
+        await this.userService.removeRefreshToken(user.u_uid);
 
         return res.json({message: "success"});
     }

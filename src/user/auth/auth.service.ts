@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserService, GuestService } from '../user.service';
 import { signInDTO, guestSigninDTO } from '../dto/auth.dto';
+import { FamilyService } from 'src/family/family.service';
 
 @Injectable()
 export class AuthService {
@@ -10,10 +11,13 @@ export class AuthService {
         private readonly jwtService: JwtService,
         private readonly userService: UserService,
         private readonly guestService: GuestService,
+        private readonly familyService: FamilyService
     ) {}
 
     async validateUser(user: signInDTO) {
         const userId = await this.userService.findId(user.id);
+        const user_uid = userId.uid
+        
         if (!userId) {
             throw new UnauthorizedException('아이디 또는 비밀번호가 일치하지 않습니다.');
         }
@@ -23,14 +27,15 @@ export class AuthService {
             throw new UnauthorizedException('아이디 또는 비밀번호가 일치하지 않습니다.');
         }
 
-        // 토큰에 uid와 family uid 사용, sub 추후 제거
-        const payload = { uid: userId.uid, sub: userId.pk };
+        const family = await this.familyService.findFamilyUid(userId);
+        if(family == null) var payload = {u_uid: user_uid, f_uid: "null"}
+        else var payload = { u_uid: user_uid, f_uid: family.uid };
 
         return this.getAccessJwtToken(payload);
     }
 
     async getAccessJwtToken(payload : any){
-        console.log(payload);
+        // console.log(payload);
         return { token : this.jwtService.sign(payload) }
     }
 

@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UserService } from '../user.service';
 import { AuthService } from './auth.service';
+import { FamilyService } from 'src/family/family.service';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -11,7 +12,8 @@ export class JwtRefreshStrategy extends PassportStrategy(
 ) {
   constructor(
     private readonly userService: UserService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly familyService: FamilyService
   ) {
     super({
       // jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -29,8 +31,13 @@ export class JwtRefreshStrategy extends PassportStrategy(
   async validate(req: { cookies: { Refresh: any; }; }, payload:any) {
     const refreshToken = req.cookies?.Refresh;
     const decodingUserData = await this.userService.getRefreshTokenMatches(refreshToken, payload.pk);
+    // console.log(decodingUserData);
     //refresh 토큰도 추후 family uid로 변경
-    const newPayload = { uid: decodingUserData.uid, sub : decodingUserData.pk} 
+    const family = await this.familyService.findFamilyUid(decodingUserData);
+    // console.log(family);
+    if(family == null) var newPayload = {u_uid: decodingUserData.uid, f_uid: "null"}
+    else var newPayload = { u_uid: decodingUserData.uid, f_uid: family.uid };
+    // console.log(newPayload);
     const newAccessToken = await this.authService.getAccessJwtToken(newPayload)
     
     return newAccessToken.token;

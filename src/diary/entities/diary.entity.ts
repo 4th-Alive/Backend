@@ -1,35 +1,38 @@
 
-// import { Family } from "src/family/entities/family.entity";
-// import { User } from "src/user/entities/user.entity";
-// import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
+import { Family } from "src/family/entities/family.entity";
+import { User } from "src/user/entities/user.entity";
+import { Column, Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
 
-// @Entity()
-// export class Diary {
-//     @PrimaryGeneratedColumn()
-//     id : number;
+@Entity()
+export class Diary {
+    @PrimaryGeneratedColumn({type:'bigint'})
+    pk : number;
 
-//     @ManyToOne(() => User, user => user.email)
-//     @JoinColumn({ name: 'email', referencedColumnName: 'email'})
-//     email: User;
+    @Column({unique:true, length:'16', default:null,})
+    uid : string;
 
-//     @Column()
-//     title: string;
+    @ManyToOne(() => Family, { eager: true })
+    @JoinColumn({ name: 'family_uid', referencedColumnName: 'uid'})
+    family_uid: Family;
 
-//     @Column()
-//     contents: string;
+    @ManyToOne(() => User, { eager: true })
+    @JoinColumn({ name: 'user_uid', referencedColumnName: 'uid'})
+    user_uid: User;
 
-//     @Column()
-//     sentiment: string;
+    @Column({default:null})
+    title: string;
 
-//     @Column({default:false})
-//     isPublic: boolean;
+    @Column({length : '1000', default:null})
+    contents: string;
 
-//     @Column({ type: 'datetime' })
-//     uploadDate: Date;
-    
-//     @ManyToOne(() => Family, { eager: true })
-//     @JoinColumn({ name: 'familyCode'})
-//     familyCode: Family;
+    @Column({ type: 'timestamp', default:null})
+    create_date: Date;
 
-// }
+    @Column({default:null})
+    sentiment: number;
+
+    @Column({type:"tinyint", default:false})
+    private: number;
+
+}
 
