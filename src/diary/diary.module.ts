@@ -5,12 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Diary } from './entities/diary.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Family } from 'src/family/entities/family.entity';
+import { DiaryComment } from './entities/diary_comment.entity';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Diary]), 
-        TypeOrmModule.forFeature([User]),
-        TypeOrmModule.forFeature([Family]),
+        TypeOrmModule.forFeature([Diary, User, Family, DiaryComment]), 
     ],
     controllers: [DiaryController],
     providers: [DiaryService],
